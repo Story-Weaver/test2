@@ -37,23 +37,15 @@ public class HostService {
     try {
         process = pb.start();
 
-        // 2. Читаем вывод скрипта в реальном времени
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 output.append(line).append("\n");
-                // Можно добавить лог, чтобы видеть прогресс в консоли сервера
                 logger.info("Script output: {}", line);
+                if(line.startsWith("ssh")){
+                    return line;
+                }
             }
-        }
-
-        // 3. Устанавливаем ЖЕСТКИЙ лимит ожидания (например, 5 минут)
-        // Если скрипт не уложится, Java убьет его и пойдет дальше
-        boolean finished = process.waitFor(5, TimeUnit.MINUTES);
-
-        if (!finished) {
-            process.destroyForcibly(); // Принудительно завершаем зависший процесс
-            return "Error: Превышено время ожидания (5 минут). Скрипт принудительно остановлен.";
         }
 
         int exitCode = process.exitValue();
@@ -63,11 +55,6 @@ public class HostService {
             return "Ошибка (код " + exitCode + "):\n" + output.toString();
         }
 
-    } catch (InterruptedException e) {
-        // Если поток был прерван извне (например, выключили сервер)
-        if (process != null) process.destroy();
-        Thread.currentThread().interrupt();
-        return "Процесс был прерван: " + e.getMessage();
     } catch (Exception e) {
         logger.error("Ошибка при выполнении скрипта", e);
         return "Исключение: " + e.getMessage();
