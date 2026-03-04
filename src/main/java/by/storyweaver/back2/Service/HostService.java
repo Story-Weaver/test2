@@ -22,7 +22,7 @@ public class HostService {
 
 
     ProcessBuilder pb = new ProcessBuilder(
-            "sudo", "./create.sh",
+            "sudo", "/home/user/git_clone/create.sh",
             entity.getName(),
             String.valueOf(entity.getCors()),
             String.valueOf(entity.getRam()),
