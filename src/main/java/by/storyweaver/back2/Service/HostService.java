@@ -24,8 +24,8 @@ public class HostService {
     ProcessBuilder pb = new ProcessBuilder(
             "sudo", "/home/user/git_clone/create.sh",
             entity.getName(),
-            String.valueOf(entity.getCors()),
             String.valueOf(entity.getRam()),
+            String.valueOf(entity.getCors()),
             String.valueOf(entity.getRom()),
             entity.getPassword()
     );
