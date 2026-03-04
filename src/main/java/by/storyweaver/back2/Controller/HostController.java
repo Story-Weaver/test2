@@ -26,13 +26,10 @@ public class HostController {
             if (!entity.isValid()) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
             }
-            if(hostService.createVM(entity)){
-                return ResponseEntity.ok().build();
-            } else {
-                return ResponseEntity.status(HttpStatus.CONFLICT).build();
-            }
+            return ResponseEntity.ok().body(hostService.createVM(entity));
+           
         } catch (Exception e) {
-            return ResponseEntity.internalServerError().build();
+            return ResponseEntity.internalServerError().body("catch" + e.getMessage());
         }
     }
 

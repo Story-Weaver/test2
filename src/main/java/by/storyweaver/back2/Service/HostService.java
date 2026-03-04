@@ -1,6 +1,8 @@
 package by.storyweaver.back2.Service;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 
 import org.springframework.stereotype.Service;
 
@@ -10,16 +12,37 @@ import by.storyweaver.back2.Something;
 @Service
 public class HostService {
 
-    public boolean createVM(Something entity) {
-        try {
-            String command = String.format("bash /home/user/create.sh %s %d %d %d %s",
-                    entity.getName(), entity.getCors(), entity.getRam(), entity.getRom(), entity.getPassword());
-            return executeBashScript(command);
-        } catch (IOException | InterruptedException e) {
-            e.printStackTrace();
-            return false;
+    public String createVM(Something entity) {
+    StringBuilder output = new StringBuilder();
+
+    try {
+        String command = String.format("sudo bash ./create.sh %s %d %d %d %s",
+                entity.getName(), entity.getCors(), entity.getRam(), entity.getRom(), entity.getPassword());
+
+        ProcessBuilder processBuilder = new ProcessBuilder("/bin/bash", "-c", command);
+        processBuilder.redirectErrorStream(true);
+        Process process = processBuilder.start();
+
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                output.append(line).append("\n");
+            }
         }
+
+        int exitCode = process.waitFor();
+        if (exitCode == 0) {
+            return output.toString();
+        } else {
+            return "Error: " + exitCode + "\n" + output.toString();
+        }
+    } catch (IOException | InterruptedException e) {
+        e.printStackTrace();
+        return "Exception: " + e.getMessage();
     }
+    }
+
+
 
     public boolean startVM(String vmName, int sshPort) {
         try {
