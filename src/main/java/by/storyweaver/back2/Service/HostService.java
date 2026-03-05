@@ -42,7 +42,7 @@ public class HostService {
             while ((line = reader.readLine()) != null) {
                 output.append(line).append("\n");
                 logger.info("Script output: {}", line);
-                if(line.startsWith("ssh")){
+                if(line.startsWith("2")){
                     return line;
                 }
             }
